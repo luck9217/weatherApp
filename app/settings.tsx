@@ -1,14 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, Switch } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Switch,
+} from "react-native";
 import Slider from "@react-native-community/slider";
 import { Link } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Brightness from "expo-brightness";
 
 export default function SettingsScreen() {
   const [unit, setUnit] = useState("Celsius");
   const [textSize, setTextSize] = useState("Normal");
   const [soundEffects, setSoundEffects] = useState(true);
-  const [brightness, setBrightness] = useState(1); // Default brightness (1 = 100%)
+  const [brightness, setBrightness] = useState(0.5); // Default: 50%
 
   useEffect(() => {
     loadSettings();
@@ -25,7 +31,11 @@ export default function SettingsScreen() {
       if (storedUnit) setUnit(storedUnit);
       if (storedTextSize) setTextSize(storedTextSize);
       if (storedSound !== null) setSoundEffects(JSON.parse(storedSound));
-      if (storedBrightness) setBrightness(parseFloat(storedBrightness));
+      if (storedBrightness) {
+        const brightnessValue = parseFloat(storedBrightness);
+        setBrightness(brightnessValue);
+        await Brightness.setSystemBrightnessAsync(brightnessValue);
+      }
     } catch (error) {
       console.error("Failed to load settings", error);
     }
@@ -43,13 +53,25 @@ export default function SettingsScreen() {
     }
   };
 
+  // Handle brightness change
+  const handleBrightnessChange = async (value: number) => {
+    setBrightness(value);
+    await Brightness.setSystemBrightnessAsync(value);
+    await AsyncStorage.setItem("brightness", value.toString());
+  };
+
   // Reset settings to default values
   const resetSettings = async () => {
     setUnit("Celsius");
     setTextSize("Normal");
     setSoundEffects(true);
-    setBrightness(1);
-    await AsyncStorage.clear();
+    setBrightness(0.5);
+    await Brightness.setSystemBrightnessAsync(0.5);
+    
+    await AsyncStorage.setItem("unit", "Celsius");
+    await AsyncStorage.setItem("textSize", "Normal");
+    await AsyncStorage.setItem("soundEffects", JSON.stringify(true));
+    await AsyncStorage.setItem("brightness", "0.5");
   };
 
   return (
@@ -59,9 +81,7 @@ export default function SettingsScreen() {
       </Text>
 
       {/* Temperature Unit Selection */}
-      <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-        Temperature Unit:
-      </Text>
+      <Text style={{ fontSize: 18, fontWeight: "bold" }}>Temperature Unit:</Text>
       <View style={{ flexDirection: "row", marginVertical: 10 }}>
         <TouchableOpacity
           onPress={() => setUnit("Celsius")}
@@ -122,7 +142,7 @@ export default function SettingsScreen() {
         minimumValue={0.1}
         maximumValue={1}
         value={brightness}
-        onValueChange={(value) => setBrightness(value)}
+        onValueChange={handleBrightnessChange}
       />
       <Text>{Math.round(brightness * 100)}%</Text>
 
@@ -133,8 +153,8 @@ export default function SettingsScreen() {
         <Text>Version: 1.0</Text>
         <Text>Last Update: {new Date().toLocaleDateString()}</Text>
         <Text>Build Date: {new Date().toLocaleDateString()}</Text>
-        <Text>Developer: [Your Name]</Text>
-        <Text>Student Number: [Your Student Number]</Text>
+        <Text>Developer: Lucas Nahuel Chavez</Text>
+        <Text>Student Number: ACBI20240565</Text>
       </View>
 
       {/* Buttons */}
