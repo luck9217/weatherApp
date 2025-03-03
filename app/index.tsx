@@ -39,11 +39,16 @@ type CityWeather = {
 
 export default function MainScreen() {
   const [selectedCities, setSelectedCities] = useState<CityWeather[]>([]);
+  const [textSize, setTextSize] = useState<"Normal" | "Large" | "Extra-Large">(
+    "Normal"
+  );
+
   const params = useLocalSearchParams();
 
   useEffect(() => {
     loadStoredCities();
-  }, []);
+    loadTextSize();
+  }, [textSize]);
 
   useEffect(() => {
     if (params.cityName && typeof params.cityName === "string") {
@@ -75,6 +80,22 @@ export default function MainScreen() {
       await AsyncStorage.setItem("selectedCities", JSON.stringify(cities));
     } catch (error) {
       console.error("Failed to save cities", error);
+    }
+  };
+  // Load text size from AsyncStorage
+  const loadTextSize = async () => {
+    try {
+      const storedTextSize = await AsyncStorage.getItem("textSize");
+
+      // Validate and cast text size before setting it
+      if (
+        storedTextSize &&
+        ["Normal", "Large", "Extra-Large"].includes(storedTextSize)
+      ) {
+        setTextSize(storedTextSize as "Normal" | "Large" | "Extra-Large"); // ✅ Fixed type issue
+      }
+    } catch (error) {
+      console.error("Failed to load text size", error);
     }
   };
 
@@ -134,6 +155,15 @@ export default function MainScreen() {
     setSelectedCities(updatedCities);
     await saveCities(updatedCities);
   };
+
+  // Dynamic font sizes
+  const fontSizeMap = {
+    Normal: 1,
+    Large: 1.25,
+    "Extra-Large": 1.5,
+  };
+
+  const scale = fontSizeMap[textSize] || 1; // Default to 1x if missing
 
   return (
     <GestureHandlerRootView style={{ flex: 1, padding: 20 }}>
@@ -222,23 +252,31 @@ export default function MainScreen() {
                   width: "100%",
                 }}
               >
-                <Text style={{ fontSize: 22, fontWeight: "bold" }}>
+                <Text style={{ fontSize: 22 * scale, fontWeight: "bold" }}>
                   {item.name}, {item.country}
                 </Text>
-                <Text style={{ fontSize: 14, color: "#555" }}>{item.date}</Text>
-                <Text style={{ fontSize: 14, color: "#777" }}>{item.time}</Text>
+                <Text style={{ fontSize: 14 * scale, color: "#555" }}>
+                  {item.date}
+                </Text>
+                <Text style={{ fontSize: 14 * scale, color: "#777" }}>
+                  {item.time}
+                </Text>
                 <Text
-                  style={{ fontSize: 30, color: "#007bff", fontWeight: "bold" }}
+                  style={{
+                    fontSize: 30 * scale,
+                    color: "#007bff",
+                    fontWeight: "bold",
+                  }}
                 >
                   {item.temp}°C
                 </Text>
                 <Image
                   source={{ uri: item.icon }}
-                  style={{ width: 50, height: 50 }}
+                  style={{ width: 50 * scale, height: 50 * scale }}
                 />
                 <Text
                   style={{
-                    fontSize: 16,
+                    fontSize: 16 * scale,
                     fontStyle: "italic",
                     textTransform: "capitalize",
                   }}

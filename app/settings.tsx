@@ -1,24 +1,26 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Switch,
-} from "react-native";
+import { View, Text, TouchableOpacity, Switch } from "react-native";
 import Slider from "@react-native-community/slider";
 import { Link } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Brightness from "expo-brightness";
 
 export default function SettingsScreen() {
-  const [unit, setUnit] = useState("Celsius");
-  const [textSize, setTextSize] = useState("Normal");
+  const [unit, setUnit] = useState<"Celsius" | "Fahrenheit">("Celsius");
+  const [textSize, setTextSize] = useState<"Normal" | "Large" | "Extra-Large">(
+    "Normal"
+  );
   const [soundEffects, setSoundEffects] = useState(true);
   const [brightness, setBrightness] = useState(0.5); // Default: 50%
 
   useEffect(() => {
     loadSettings();
   }, []);
+
+  // 🔹 Save settings automatically when they change
+  useEffect(() => {
+    saveSettings();
+  }, [unit, textSize, soundEffects, brightness]);
 
   // Load settings from AsyncStorage
   const loadSettings = async () => {
@@ -28,8 +30,9 @@ export default function SettingsScreen() {
       const storedSound = await AsyncStorage.getItem("soundEffects");
       const storedBrightness = await AsyncStorage.getItem("brightness");
 
-      if (storedUnit) setUnit(storedUnit);
-      if (storedTextSize) setTextSize(storedTextSize);
+      if (storedUnit) setUnit(storedUnit as "Celsius" | "Fahrenheit");
+      if (storedTextSize)
+        setTextSize(storedTextSize as "Normal" | "Large" | "Extra-Large");
       if (storedSound !== null) setSoundEffects(JSON.parse(storedSound));
       if (storedBrightness) {
         const brightnessValue = parseFloat(storedBrightness);
@@ -41,7 +44,7 @@ export default function SettingsScreen() {
     }
   };
 
-  // Save settings to AsyncStorage
+  // 🔹 Save settings automatically whenever they change
   const saveSettings = async () => {
     try {
       await AsyncStorage.setItem("unit", unit);
@@ -57,21 +60,38 @@ export default function SettingsScreen() {
   const handleBrightnessChange = async (value: number) => {
     setBrightness(value);
     await Brightness.setSystemBrightnessAsync(value);
-    await AsyncStorage.setItem("brightness", value.toString());
+  };
+  const defaultSettings: {
+    unit: "Celsius" | "Fahrenheit";
+    textSize: "Normal" | "Large" | "Extra-Large";
+    soundEffects: boolean;
+    brightness: number;
+  } = {
+    unit: "Celsius",
+    textSize: "Normal",
+    soundEffects: true,
+    brightness: 0.5,
   };
 
   // Reset settings to default values
   const resetSettings = async () => {
-    setUnit("Celsius");
-    setTextSize("Normal");
-    setSoundEffects(true);
-    setBrightness(0.5);
-    await Brightness.setSystemBrightnessAsync(0.5);
-    
-    await AsyncStorage.setItem("unit", "Celsius");
-    await AsyncStorage.setItem("textSize", "Normal");
-    await AsyncStorage.setItem("soundEffects", JSON.stringify(true));
-    await AsyncStorage.setItem("brightness", "0.5");
+    setUnit(defaultSettings.unit);
+    setTextSize(defaultSettings.textSize);
+    setSoundEffects(defaultSettings.soundEffects);
+    setBrightness(defaultSettings.brightness);
+
+    await Brightness.setSystemBrightnessAsync(defaultSettings.brightness);
+
+    await AsyncStorage.setItem("unit", defaultSettings.unit);
+    await AsyncStorage.setItem("textSize", defaultSettings.textSize);
+    await AsyncStorage.setItem(
+      "soundEffects",
+      JSON.stringify(defaultSettings.soundEffects)
+    );
+    await AsyncStorage.setItem(
+      "brightness",
+      defaultSettings.brightness.toString()
+    );
   };
 
   return (
@@ -81,7 +101,9 @@ export default function SettingsScreen() {
       </Text>
 
       {/* Temperature Unit Selection */}
-      <Text style={{ fontSize: 18, fontWeight: "bold" }}>Temperature Unit:</Text>
+      <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+        Temperature Unit:
+      </Text>
       <View style={{ flexDirection: "row", marginVertical: 10 }}>
         <TouchableOpacity
           onPress={() => setUnit("Celsius")}
@@ -110,7 +132,7 @@ export default function SettingsScreen() {
       {/* Text Size Selection */}
       <Text style={{ fontSize: 18, fontWeight: "bold" }}>Text Size:</Text>
       <View style={{ flexDirection: "row", marginVertical: 10 }}>
-        {["Normal", "Large", "Extra-Large"].map((size) => (
+        {(["Normal", "Large", "Extra-Large"] as const).map((size) => (
           <TouchableOpacity
             key={size}
             onPress={() => setTextSize(size)}
