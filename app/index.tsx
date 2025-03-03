@@ -42,12 +42,13 @@ export default function MainScreen() {
   const [textSize, setTextSize] = useState<"Normal" | "Large" | "Extra-Large">(
     "Normal"
   );
+  const [unit, setUnit] = useState<"Celsius" | "Fahrenheit">("Celsius");
 
   const params = useLocalSearchParams();
 
   useEffect(() => {
     loadStoredCities();
-    loadTextSize();
+    loadSettings();
   }, [textSize]);
 
   useEffect(() => {
@@ -82,23 +83,21 @@ export default function MainScreen() {
       console.error("Failed to save cities", error);
     }
   };
-  // Load text size from AsyncStorage
-  const loadTextSize = async () => {
+  const loadSettings = async () => {
     try {
       const storedTextSize = await AsyncStorage.getItem("textSize");
+      const storedUnit = await AsyncStorage.getItem("unit");
 
-      // Validate and cast text size before setting it
-      if (
-        storedTextSize &&
-        ["Normal", "Large", "Extra-Large"].includes(storedTextSize)
-      ) {
-        setTextSize(storedTextSize as "Normal" | "Large" | "Extra-Large"); // ✅ Fixed type issue
+      if (storedTextSize) {
+        setTextSize(storedTextSize as "Normal" | "Large" | "Extra-Large");
+      }
+      if (storedUnit) {
+        setUnit(storedUnit as "Celsius" | "Fahrenheit");
       }
     } catch (error) {
-      console.error("Failed to load text size", error);
+      console.error("Failed to load settings", error);
     }
   };
-
   // Fetch weather data for selected city
   const fetchWeather = async (city: City) => {
     try {
@@ -154,6 +153,11 @@ export default function MainScreen() {
     const updatedCities = selectedCities.filter((city) => city.id !== id);
     setSelectedCities(updatedCities);
     await saveCities(updatedCities);
+  };
+
+  // ✅ Convert Celsius to Fahrenheit if necessary
+  const convertTemperature = (tempC: number) => {
+    return unit === "Fahrenheit" ? Math.round(tempC * (9 / 5) + 32) : tempC;
   };
 
   // Dynamic font sizes
@@ -268,7 +272,8 @@ export default function MainScreen() {
                     fontWeight: "bold",
                   }}
                 >
-                  {item.temp}°C
+                  {convertTemperature(item.temp)}°
+                  {unit === "Celsius" ? "C" : "F"}
                 </Text>
                 <Image
                   source={{ uri: item.icon }}
