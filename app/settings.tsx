@@ -56,6 +56,11 @@ export default function SettingsScreen() {
     }
   };
 
+  const handleToggleSoundEffects = async (value: boolean) => {
+    setSoundEffects(value);
+    await AsyncStorage.setItem("soundEffects", JSON.stringify(value));
+  };
+
   // Handle brightness change
   const handleBrightnessChange = async (value: number) => {
     setBrightness(value);
@@ -150,10 +155,7 @@ export default function SettingsScreen() {
 
       {/* Sound Effects Toggle */}
       <Text style={{ fontSize: 18, fontWeight: "bold" }}>Sound Effects:</Text>
-      <Switch
-        value={soundEffects}
-        onValueChange={(value) => setSoundEffects(value)}
-      />
+      <Switch value={soundEffects} onValueChange={handleToggleSoundEffects} />
 
       {/* Brightness Adjustment */}
       <Text style={{ fontSize: 18, fontWeight: "bold", marginTop: 20 }}>
@@ -175,7 +177,7 @@ export default function SettingsScreen() {
         <Text>Version: 1.0</Text>
         <Text>Last Update: {new Date().toLocaleDateString()}</Text>
         <Text>Build Date: {new Date().toLocaleDateString()}</Text>
-        <Text>Developer: Lucas Nahuel Chavez</Text>
+        <Text>Developer: Pedro | Santiago | Lucas</Text>
         <Text>Student Number: ACBI20240565</Text>
       </View>
 

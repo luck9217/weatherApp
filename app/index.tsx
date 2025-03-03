@@ -8,6 +8,7 @@ import {
   Swipeable,
 } from "react-native-gesture-handler";
 import citiesDataRaw from "./cities.json"; // Import raw JSON data
+import { Audio } from "expo-av"; // Import audio module
 
 // Define the City type
 type City = {
@@ -43,13 +44,36 @@ export default function MainScreen() {
     "Normal"
   );
   const [unit, setUnit] = useState<"Celsius" | "Fahrenheit">("Celsius");
+  const [soundEffects, setSoundEffects] = useState(true);
+
+  // Load sounds once when the app starts
+  const soundObjects = {
+    add: require("./add_sound.mp3"),
+    delete: require("./delete_sound.mp3"),
+  };
+
+  const playSound = async (soundType: "add" | "delete") => {
+    try {
+      const storedSoundEffects = await AsyncStorage.getItem("soundEffects");
+      const isSoundEnabled = storedSoundEffects
+        ? JSON.parse(storedSoundEffects)
+        : true; // Default to true if null
+
+      if (!isSoundEnabled) return; // Check storage instead of state
+
+      const { sound } = await Audio.Sound.createAsync(soundObjects[soundType]);
+      await sound.playAsync();
+    } catch (error) {
+      console.error("Failed to play sound:", error);
+    }
+  };
 
   const params = useLocalSearchParams();
 
   useEffect(() => {
     loadStoredCities();
     loadSettings();
-  }, [textSize]);
+  }, [textSize, unit, soundEffects]);
 
   useEffect(() => {
     if (params.cityName && typeof params.cityName === "string") {
@@ -85,6 +109,7 @@ export default function MainScreen() {
   };
   const loadSettings = async () => {
     try {
+      const storedSoundEffects = await AsyncStorage.getItem("soundEffects");
       const storedTextSize = await AsyncStorage.getItem("textSize");
       const storedUnit = await AsyncStorage.getItem("unit");
 
@@ -93,6 +118,9 @@ export default function MainScreen() {
       }
       if (storedUnit) {
         setUnit(storedUnit as "Celsius" | "Fahrenheit");
+      }
+      if (storedSoundEffects !== null) {
+        setSoundEffects(JSON.parse(storedSoundEffects));
       }
     } catch (error) {
       console.error("Failed to load settings", error);
@@ -139,6 +167,7 @@ export default function MainScreen() {
         if (!prevCities.some((c) => c.id === newCity.id)) {
           const updatedCities = [...prevCities, newCity]; // Append instead of replacing
           saveCities(updatedCities); // Save to AsyncStorage
+          playSound("add");
           return updatedCities;
         }
         return prevCities;
@@ -153,6 +182,7 @@ export default function MainScreen() {
     const updatedCities = selectedCities.filter((city) => city.id !== id);
     setSelectedCities(updatedCities);
     await saveCities(updatedCities);
+    playSound("delete");
   };
 
   // ✅ Convert Celsius to Fahrenheit if necessary
