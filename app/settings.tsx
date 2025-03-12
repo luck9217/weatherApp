@@ -177,8 +177,9 @@ export default function SettingsScreen() {
         <Text>Version: 1.0</Text>
         <Text>Last Update: {new Date().toLocaleDateString()}</Text>
         <Text>Build Date: {new Date().toLocaleDateString()}</Text>
-        <Text>Developer: Pedro | Santiago | Lucas</Text>
+        <Text>Developer: Lucas Chavez</Text>
         <Text style={{ marginBottom: 10 }}>Student Number: ACBI20240565</Text>
+        {/* <Text style={{ marginBottom: 10 }}>Student Number: ACBI20240568</Text> */}
         <Text>
           Thank you for purchasing Weather Time. If you have any issues or
           feedback, please contact: 1800 123 456. Data provided by
