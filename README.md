@@ -1,50 +1,71 @@
-# Welcome to your Expo app 👋
+# Weather App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## Overview
+This is a **React Native** weather application built using **Expo**, which allows users to search for cities and view their current weather conditions. The app includes features such as:
+- **Adding/Removing cities**
+- **Fetching real-time weather data** from OpenWeatherMap API
+- **Customizable settings** for temperature units (Celsius/Fahrenheit), text size, and sound effects
+- **Offline storage** using AsyncStorage
+- **Interactive UI** with swipe-to-delete functionality
 
-## Get started
+## Installation & Setup
+### Prerequisites
+Ensure you have the following installed:
+- **Node.js** (Latest LTS recommended)
+- **Expo CLI** (`npm install -g expo-cli`)
+- **React Native**
 
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-    npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+### Clone the Repository
+```sh
+git clone https://github.com/your-repository/weather-app.git
+cd weather-app
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### Install Dependencies
+```sh
+npm install
+```
 
-## Learn more
+### Run the App
+```sh
+expo start
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+## Using the App
+### Mobile App Experience
+This app is designed for **mobile usage**. If running on a web browser:
+- Open **Developer Tools** (F12 or right-click → Inspect)
+- **Switch to Developer Mode**
+- Select **iPhone Mode** in the responsive settings
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+For the best experience, scan the **Expo QR Code** in the terminal using your phone.
 
-## Join the community
+### Features
+- **Search & Add Cities**: Tap the **`+`** icon to add a city.
+- **View Weather Details**: Displays temperature, time, date, and weather conditions.
+- **Swipe to Delete**: Remove a city by swiping left.
+- **Settings**: Customize text size, sound effects, and temperature units.
 
-Join our community of developers creating universal apps.
+## API & Dependencies
+- **Weather API**: OpenWeatherMap API (Replace API key in `API_KEY` variable)
+- **Dependencies**:
+  - `react-native`
+  - `expo-router`
+  - `react-native-gesture-handler`
+  - `async-storage`
+  - `expo-av` (for sound effects)
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Troubleshooting
+- **Weather Not Loading?**
+  - Check if the **API key** is correct (`API_KEY` in `MainScreen.tsx`).
+  - Ensure internet connectivity.
+- **No Sound Effects?**
+  - Verify that sound effects are **enabled in settings**.
+  - Restart the app to apply changes.
+
+## License
+MIT License. Feel free to modify and enhance the project.
+
+---
+For any issues, please open a GitHub **issue** or reach out to the developer. Happy coding! 🚀
+
